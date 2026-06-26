@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Catat Tidur{% endblock %}
+{% block page_title %}➕ Catat Tidur Baru{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12 col-md-8 col-lg-6">
+    <div class="card">
+      <div class="card-header">🌙 Data Tidur Hari Ini</div>
+      <div class="card-body p-4">
+        <form method="POST">
+          <div class="mb-3">
+            <label class="form-label fw-600">📅 Tanggal</label>
+            <input type="date" name="sleep_date" class="form-control" value="{{ today }}" max="{{ today }}" required/>
+            <small class="text-muted">Tanggal kamu mulai tidur</small>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="form-label fw-600">🌙 Jam Tidur</label>
+              <input type="time" name="sleep_time" class="form-control" value="23:00" required/>
+              <small class="text-muted">Kamu mulai tidur jam</small>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-600">☀️ Jam Bangun</label>
+              <input type="time" name="wake_time" class="form-control" value="06:00" required/>
+              <small class="text-muted">Kamu bangun jam</small>
+            </div>
+          </div>
+          <!-- Preview duration -->
+          <div id="durationPreview" class="mb-3 p-3" style="background:#E8EAF6;border-radius:10px;display:none;">
+            <div style="font-size:0.85rem;color:var(--navy);font-weight:600;">⏱️ Estimasi Durasi: <span id="durVal">-</span></div>
+            <div id="qualityPreview" style="font-size:0.8rem;margin-top:4px;"></div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-600">📝 Catatan (opsional)</label>
+            <textarea name="notes" class="form-control" rows="3" placeholder="Tidur setelah begadang ngerjain tugas, tidur nyenyak, dll..."></textarea>
+          </div>
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary py-2 fw-600">💾 Simpan Data Tidur</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Batal</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Tips card -->
+    <div class="card mt-3">
+      <div class="card-header">💡 Tips Waktu Tidur Ideal</div>
+      <div class="card-body">
+        <ul style="font-size:0.88rem;color:var(--gray);margin:0;padding-left:20px;">
+          <li>Tidur antara <strong>22:00 – 23:00</strong></li>
+          <li>Bangun antara <strong>05:00 – 07:00</strong></li>
+          <li>Durasi ideal <strong>7–9 jam</strong> per malam</li>
+          <li>Jaga konsistensi jadwal setiap hari</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function calcDuration() {
+  const st = document.querySelector('[name=sleep_time]').value;
+  const wt = document.querySelector('[name=wake_time]').value;
+  if (!st || !wt) return;
+  const [sh, sm] = st.split(':').map(Number);
+  let [wh, wm] = wt.split(':').map(Number);
+  let dur = (wh * 60 + wm) - (sh * 60 + sm);
+  if (dur <= 0) dur += 24 * 60;
+  const hrs = dur / 60;
+  const h = Math.floor(hrs), m = Math.round((hrs - h) * 60);
+  document.getElementById('durVal').textContent = `${h} jam ${m} menit`;
+  let q = '', color = '';
+  if (hrs >= 7 && hrs <= 9) { q = '✅ Sangat Baik'; color = '#2E7D32'; }
+  else if (hrs >= 6) { q = '⚠️ Cukup'; color = '#F57C00'; }
+  else if (hrs > 9) { q = 'ℹ️ Terlalu Panjang'; color = '#1565C0'; }
+  else { q = '❌ Kurang'; color = '#C62828'; }
+  document.getElementById('qualityPreview').innerHTML = `<span style="color:${color};font-weight:600;">Kualitas: ${q}</span>`;
+  document.getElementById('durationPreview').style.display = 'block';
+}
+document.querySelector('[name=sleep_time]').addEventListener('change', calcDuration);
+document.querySelector('[name=wake_time]').addEventListener('change', calcDuration);
+calcDuration();
+</script>
+{% endblock %}

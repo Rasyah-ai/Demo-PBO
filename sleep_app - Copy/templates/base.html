@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}SleepTrack{% endblock %} — Pemantau Pola Tidur Mahasiswa</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --navy: #1A237E;
+      --blue: #3949AB;
+      --teal: #00ACC1;
+      --light-blue: #E8EAF6;
+      --accent: #00BCD4;
+      --success: #2E7D32;
+      --warning: #F57C00;
+      --danger: #C62828;
+      --text: #1A1A2E;
+      --gray: #546E7A;
+      --bg: #F5F6FA;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    .sidebar {
+      width: 240px; min-height: 100vh; background: var(--navy);
+      position: fixed; top: 0; left: 0; z-index: 100;
+      display: flex; flex-direction: column; padding: 0;
+    }
+    .sidebar-brand {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .sidebar-brand h1 { font-family: 'Poppins', sans-serif; color: white; font-size: 1.4rem; margin: 0; }
+    .sidebar-brand small { color: var(--accent); font-size: 0.7rem; letter-spacing: 1px; }
+    .sidebar-nav { flex: 1; padding: 16px 0; }
+    .sidebar-nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 20px; color: rgba(255,255,255,0.75);
+      text-decoration: none; font-size: 0.9rem; font-weight: 500;
+      transition: all 0.2s; border-left: 3px solid transparent;
+    }
+    .sidebar-nav a:hover, .sidebar-nav a.active {
+      color: white; background: rgba(255,255,255,0.1);
+      border-left-color: var(--teal);
+    }
+    .sidebar-nav a span.icon { font-size: 1.1rem; width: 22px; }
+    .sidebar-footer { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .sidebar-footer a { color: rgba(255,255,255,0.6); font-size: 0.85rem; text-decoration: none; }
+    .sidebar-footer a:hover { color: white; }
+    .main-content { margin-left: 240px; min-height: 100vh; }
+    .topbar {
+      background: white; padding: 14px 28px; display: flex; align-items: center;
+      justify-content: space-between; border-bottom: 1px solid #E8EAF6;
+      position: sticky; top: 0; z-index: 50;
+    }
+    .topbar h2 { font-family: 'Poppins', sans-serif; font-size: 1.2rem; color: var(--navy); margin: 0; }
+    .user-chip {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--light-blue); padding: 6px 14px;
+      border-radius: 20px; font-size: 0.85rem; color: var(--navy); font-weight: 500;
+    }
+    .page-body { padding: 28px; }
+    .card { border: none; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+    .card-header { background: none; border-bottom: 1px solid var(--light-blue); padding: 16px 20px; font-weight: 600; color: var(--navy); }
+    .stat-card {
+      background: white; border-radius: 14px; padding: 20px 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07); position: relative; overflow: hidden;
+    }
+    .stat-card .icon-bg {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+    }
+    .stat-card .value { font-family: 'Poppins', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--navy); line-height: 1; }
+    .stat-card .label { font-size: 0.8rem; color: var(--gray); margin-top: 2px; }
+    .badge-quality { padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+    .alert-custom { border-radius: 12px; border: none; padding: 14px 18px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
+    .alert-custom.success { background: #E8F5E9; color: #1B5E20; }
+    .alert-custom.warning { background: #FFF8E1; color: #E65100; }
+    .alert-custom.danger  { background: #FFEBEE; color: #B71C1C; }
+    .alert-custom.info    { background: #E3F2FD; color: #0D47A1; }
+    .alert-custom.tip     { background: var(--light-blue); color: var(--navy); }
+    .alert-custom .icon   { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+    .btn-primary { background: var(--navy); border-color: var(--navy); }
+    .btn-primary:hover { background: var(--blue); border-color: var(--blue); }
+    .btn-teal { background: var(--teal); border-color: var(--teal); color: white; }
+    .btn-teal:hover { background: #0097A7; border-color: #0097A7; color: white; }
+    .table thead th { background: var(--light-blue); color: var(--navy); font-weight: 600; font-size: 0.85rem; border: none; }
+    .table td { font-size: 0.88rem; vertical-align: middle; border-color: #F0F0F5; }
+    .flash-messages { position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; }
+    .form-control, .form-select { border-radius: 8px; border-color: #C5CAE9; font-size: 0.9rem; }
+    .form-control:focus, .form-select:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,172,193,0.15); }
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; }
+    }
+  </style>
+  {% block extra_style %}{% endblock %}
+</head>
+<body>
+
+{% if session.user_id %}
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <h1>🌙 SleepTrack</h1>
+    <small>PEMANTAU POLA TIDUR</small>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="{{ url_for('dashboard') }}" class="{{ 'active' if request.endpoint == 'dashboard' }}">
+      <span class="icon">📊</span> Dashboard
+    </a>
+    <a href="{{ url_for('add_record') }}" class="{{ 'active' if request.endpoint == 'add_record' }}">
+      <span class="icon">➕</span> Catat Tidur
+    </a>
+    <a href="{{ url_for('records') }}" class="{{ 'active' if request.endpoint == 'records' }}">
+      <span class="icon">🗂️</span> Riwayat Data
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="{{ url_for('logout') }}">🚪 Keluar</a>
+  </div>
+</div>
+
+<div class="main-content">
+  <div class="topbar">
+    <h2>{% block page_title %}{% endblock %}</h2>
+    <div class="user-chip">👤 {{ session.user_name }}</div>
+  </div>
+  <div class="page-body">
+    <div class="flash-messages">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' if cat == 'error' else 'info' }} alert-dismissible fade show shadow-sm" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endwith %}
+    </div>
+    {% block content %}{% endblock %}
+  </div>
+</div>
+{% else %}
+{% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

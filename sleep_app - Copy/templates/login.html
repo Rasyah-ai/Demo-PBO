@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block auth_content %}
+<div style="min-height:100vh;background:linear-gradient(135deg,#1A237E 0%,#3949AB 50%,#00ACC1 100%);display:flex;align-items:center;justify-content:center;">
+  <div style="width:100%;max-width:420px;padding:16px;">
+    <div class="text-center mb-4">
+      <div style="font-size:3.5rem;">🌙</div>
+      <h1 style="font-family:'Poppins',sans-serif;color:white;font-size:2rem;margin:8px 0 4px;">SleepTrack</h1>
+      <p style="color:rgba(255,255,255,0.75);font-size:0.9rem;">Sistem Pemantauan Pola Tidur Mahasiswa</p>
+    </div>
+    <div class="card p-4">
+      <h5 class="mb-4" style="color:var(--navy);font-weight:600;">Masuk ke Akun</h5>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' }}">{{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
+      <form method="POST" action="/login">
+        <div class="mb-3">
+          <label class="form-label fw-500" style="font-size:0.9rem;">Email</label>
+          <input type="email" name="email" class="form-control" placeholder="email@mahasiswa.ac.id" required value="demo@mahasiswa.ac.id"/>
+        </div>
+        <div class="mb-4">
+          <label class="form-label fw-500" style="font-size:0.9rem;">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="••••••••" required value="demo123"/>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-600">Masuk 🚀</button>
+      </form>
+      <hr class="my-3"/>
+      <p class="text-center mb-0" style="font-size:0.85rem;color:var(--gray);">
+        Belum punya akun? <a href="/register" style="color:var(--teal);text-decoration:none;font-weight:600;">Daftar di sini</a>
+      </p>
+      <div class="mt-3 p-3" style="background:#E8EAF6;border-radius:8px;font-size:0.8rem;color:var(--navy);">
+        <strong>Demo Account:</strong><br>
+        Email: demo@mahasiswa.ac.id<br>Password: demo123
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

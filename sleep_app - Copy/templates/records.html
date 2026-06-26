@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Riwayat Data{% endblock %}
+{% block page_title %}🗂️ Riwayat Data Tidur{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Semua Data Tidur ({{ records | length }} entri)</span>
+    <a href="{{ url_for('add_record') }}" class="btn btn-teal btn-sm">➕ Tambah</a>
+  </div>
+  <div class="card-body p-0">
+    {% if records %}
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Waktu Tidur</th>
+            <th>Waktu Bangun</th>
+            <th>Durasi</th>
+            <th>Kualitas</th>
+            <th>Skor</th>
+            <th>Catatan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in records %}
+          {% set qc = {'Sangat Baik':'success','Cukup':'warning','Kurang':'danger','Sangat Kurang':'danger','Terlalu Panjang':'info'} %}
+          <tr>
+            <td><strong>{{ r.date }}</strong></td>
+            <td>{{ r.sleep_time }}</td>
+            <td>{{ r.wake_time }}</td>
+            <td><strong>{{ r.duration }} jam</strong></td>
+            <td><span class="badge bg-{{ qc.get(r.quality,'secondary') }}">{{ r.quality }}</span></td>
+            <td>
+              <div style="background:#E8EAF6;border-radius:20px;height:8px;width:60px;overflow:hidden;">
+                <div style="height:100%;width:{{ r.quality_score }}%;background:{% if r.quality_score >= 80 %}#2E7D32{% elif r.quality_score >= 50 %}#F57C00{% else %}#C62828{% endif %};border-radius:20px;"></div>
+              </div>
+              <small style="color:var(--gray);">{{ r.quality_score }}%</small>
+            </td>
+            <td style="font-size:0.82rem;color:var(--gray);">{{ r.notes or '—' }}</td>
+            <td>
+              <form method="POST" action="/delete/{{ r.record_id }}" onsubmit="return confirm('Hapus data ini?')">
+                <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2">🗑</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <div style="font-size:3rem;">🌙</div>
+      <h5 class="mt-2" style="color:var(--navy);">Belum ada data</h5>
+      <a href="{{ url_for('add_record') }}" class="btn btn-teal mt-2">Catat Tidur Pertama</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

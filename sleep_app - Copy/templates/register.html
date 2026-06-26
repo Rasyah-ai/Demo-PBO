@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block auth_content %}
+<div style="min-height:100vh;background:linear-gradient(135deg,#1A237E 0%,#3949AB 50%,#00ACC1 100%);display:flex;align-items:center;justify-content:center;">
+  <div style="width:100%;max-width:420px;padding:16px;">
+    <div class="text-center mb-4">
+      <div style="font-size:3rem;">🌙</div>
+      <h1 style="font-family:'Poppins',sans-serif;color:white;font-size:1.8rem;margin:8px 0 4px;">SleepTrack</h1>
+      <p style="color:rgba(255,255,255,0.75);font-size:0.85rem;">Buat akun baru</p>
+    </div>
+    <div class="card p-4">
+      <h5 class="mb-4" style="color:var(--navy);font-weight:600;">Daftar Akun Baru</h5>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ 'success' if cat == 'success' else 'danger' }}">{{ msg }}</div>
+        {% endfor %}
+      {% endwith %}
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label" style="font-size:0.9rem;">Nama Lengkap</label>
+          <input type="text" name="name" class="form-control" placeholder="Nama kamu" required/>
+        </div>
+        <div class="mb-3">
+          <label class="form-label" style="font-size:0.9rem;">Email</label>
+          <input type="email" name="email" class="form-control" placeholder="email@mahasiswa.ac.id" required/>
+        </div>
+        <div class="mb-4">
+          <label class="form-label" style="font-size:0.9rem;">Password</label>
+          <input type="password" name="password" class="form-control" placeholder="Buat password" required/>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2">Daftar Sekarang</button>
+      </form>
+      <hr class="my-3"/>
+      <p class="text-center mb-0" style="font-size:0.85rem;color:var(--gray);">
+        Sudah punya akun? <a href="/login" style="color:var(--teal);text-decoration:none;font-weight:600;">Masuk</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
